@@ -1,5 +1,6 @@
 ci.mean <- function(n,ybar,s=NULL,sigma=NULL,conf.level=0.95,
    vname="[difference between the quantitative variables]") {
+   # Example: ci.mean(50,27.3,sigma=12.1)
       z.star <- NULL
       t.star <- NULL
       ME <- NULL
