@@ -5,7 +5,7 @@ plot.add.ci <- function(x, y, interval='prediction', level=0.9, regressionColor=
 	y       <- y[xOrder]
         fit     <- lm(y ~ x, data=data.frame(x=x, y=y))
 	newX    <- data.frame(x=jitter(x))
-	fitPred <- predict.lm(fit, newdata=newX, interval=interval, 			level=level, ...)
+	fitPred <- predict.lm(fit,newdata=newX,interval=interval,level=level, ...)
 	abline(lm(y ~ x), col=regressionColor)
 	lines(newX$x, fitPred[,2], lty=2, ...)
 	lines(newX$x, fitPred[,3], lty=2, ...)
