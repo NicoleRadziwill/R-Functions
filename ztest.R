@@ -13,9 +13,9 @@ z.test <- function(x,n,p=NULL,conf.level=0.95,alternative="less") {
          p.val <- pnorm(ts.z)
          if(alternative=="two.sided") {
             if(p.val > 0.5) {
-               p.val <- p.val - 0.5  
+               p.val <- 1 - p.val
+               p.val <- p.val * 2
             }
-            p.val <- p.val * 2
          }
          if(alternative=="greater") {
             p.val <- 1 - p.val
