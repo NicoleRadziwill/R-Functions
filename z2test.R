@@ -19,10 +19,10 @@ z2.test <- function(x1,n1,x2,n2,conf.level=0.95,
    ts.z <- diff.phats/SE.pooled
    p.val <- pnorm(ts.z) # defaults to alternative="less"
    if(alternative=="two.sided") {
-      p.val <- p.val * 2
           if(p.val > 0.5) {
              p.val <- p.val - 0.5  
           }
+          p.val <- p.val * 2
       if(p.val > 1) { p.val = 1 }
    }
    if(alternative=="greater") {
