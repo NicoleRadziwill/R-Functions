@@ -12,6 +12,9 @@ z.test <- function(x,n,p=NULL,conf.level=0.95,alternative="less") {
          ts.z <- (phat - p)/SE.phat
          p.val <- pnorm(ts.z)
          if(alternative=="two.sided") {
+            if(p.val > 0.5) {
+               p.val <- p.val - 0.5  
+            }
             p.val <- p.val * 2
          }
          if(alternative=="greater") {
