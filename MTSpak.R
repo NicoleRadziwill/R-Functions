@@ -38,4 +38,3 @@ stb <- function(x) {
 dyn.sn <- function(x, y) { 
    stb(x) - ltb(y) 
 }
-                        
