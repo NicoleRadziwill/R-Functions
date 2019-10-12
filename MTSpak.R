@@ -3,10 +3,10 @@ library(qualityTools)    # for taguchiDesign function
 library(tidyverse)       # for data handling, pipes, and plotting
 library(highcharter)     # for an alternative to ggplot
 
-# Functions to compute Mahalanobis Distances (MDs) for "good" and "bad" groups
-# Takes two data frames as inputs
-
 computeMDs <- function(good, bad) {
+# This function computes Mahalanobis Distances (MDs) for "good" and "bad" groups.
+# Takes two data frames as inputs and produces a list of MD.good and MD.bad -- the object
+# returned by this function can be ingested by plotMDs
    if (!is.data.frame(good) || !is.data.frame(bad)) { 
       stop("At least one input is not a data frame")
    } else {
@@ -45,13 +45,13 @@ plotMDs <- function(computeMDs_obj, type="bars") {
 }
                         
 generateTDO <- function(good) {
-      # This function can take as input either the good or bad data frame, since both have same ncol.
-      # Alternatively, you can just give it the number of IVs directly and it will still work.
-      if (!is.data.frame(good)) { 
+# This function can take as input either the good or bad data frame, since both have same ncol.
+# Alternatively, you can just give it the number of IVs directly and it will still work.
+   if (!is.data.frame(good)) { 
           ivs <- good
-      } else {
+   } else {
           ivs <- ncol(good)
-      }
+   }
       if (ivs %in% c(2:3)) {
           tdo <- taguchiDesign("L4_2")@design[,1:ivs] %>% replace(.=="2",0)
       } else if (ivs %in% c(4:7)) {
@@ -80,10 +80,10 @@ dyn.sn <- function(x, y) {
 }
 
 runTaguchi <- function(good, bad, tdo) {
-   # This function takes the data frames of good and bad observations + the Taguchi Orthogonal Array design (tdo)
-   # created by the generateTDO function and runs all signal-to-noise experiments on the MDs.
-   # It returns a data frame of experimental results, with one row per Taguchi experiment, and one column
-   # per predictor/independent variable.
+# This function takes the data frames of good and bad observations + the Taguchi Orthogonal Array design (tdo)
+# created by the generateTDO function and runs all signal-to-noise experiments on the MDs.
+# It returns a matrix of experimental results, with one row per Taguchi experiment, and one column
+# per predictor/independent variable.
   
    all.results <- NULL
    
@@ -102,7 +102,6 @@ runTaguchi <- function(good, bad, tdo) {
          Rinv <- ginv(cor(as.matrix(exp.good))) 
          z0s <- (exp.bad-xbars)/sds
          as.vector(t(z0s)*z0s) -> results
-         print("I am inside the first if")
          all.results <- rbind(all.results, results)
 
       } else if (is.data.frame(exp.good)) {                  # there are MULTIPLE active columns to process in the Taguchi array
@@ -112,13 +111,11 @@ runTaguchi <- function(good, bad, tdo) {
          Rinv <- ginv(cor(exp.good))
          z0s <- apply(exp.bad, 1, function(x) (x-xbars)/sds)  # scale bad group based on xbar/sd of good group
          as.vector(pinv * diag( (t(z0s) %*% Rinv %*% z0s) )) -> results
-         print("I am inside the 2nd if")
          all.results <- rbind(all.results, results)
  
       }                 
    }
       rownames(all.results) <- NULL
-      df <- data.frame(all.results)
       return(all.results)
 }
                    
@@ -136,5 +133,22 @@ addSN <- function(taguchiResults, method="ltb") {
     } else {
           stop("The addSN function requires a data frame containing Taguchi experiment results")
     }
-   return(sn.df=sn.df)
+   return(sn.df)
+}
+                      
+calcGains <- function(tdo, df) {
+# This function calculates average SN for each predictor/independent variable when it was used (Level 1)
+# and also when it was not used (Level 2) in each of the Taguchi experiments. The difference between
+# these two averages as you move from Level 1 to Level 2 is called the gain.
+# For example, if the first predictor/independent variable was used in 3 of 8 Taguchi experiments, the
+# Level 1 SN for X1 would be the average of these three SNs, while the Level 2 SN would be the average of
+# SNs for the 5 experiments where X1 was not used.
+    level1 <- colMeans(apply(tdo, 2, function(x) x*df$sn))
+    level2s <- as.data.frame(matrix(as.numeric(!tdo), nrow=nrow(tdo)))
+    level2 <- colMeans(apply(level2s, 2, function(x) x*df$sn))
+
+    gains.df <- as.data.frame(cbind(level1, level2, gain=level1-level2), rownames=colnames(x))
+    gains.df$var <- colnames(good)
+
+    return(gains.df)
 }
