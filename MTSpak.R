@@ -1,6 +1,7 @@
 library(MASS)            # for ginv function
 library(qualityTools)    # for taguchiDesign function
 library(tidyverse)       # for data handling, pipes, and plotting
+library(highcharter)     # for an alternative to ggplot
 
 # Functions to compute Mahalanobis Distances (MDs) for "good" and "bad" groups
 # Takes two data frames as inputs
@@ -28,11 +29,19 @@ computeMDs <- function(good, bad) {
 }
 
 plotMDs <- function(computeMDs_obj, type="bars") {
-      bar.df <- data.frame(index=seq(1, length(computeMDs_obj$MD.good) + length(computeMDs_obj$MD.bad), 1), 
-          md=c(computeMDs_obj$MD.good, computeMDs_obj$MD.bad))
-
-      bar.df %>% ggplot() + geom_bar(aes(x=index, y=md), stat="identity") + 
-          ggtitle("Comparison of MDs between Normal and Abnormal Groups")
+      bar.df <- data.frame( 
+          index=seq(1, length(computeMDs_obj$MD.good) + length(computeMDs_obj$MD.bad), 1), 
+          md=c(computeMDs_obj$MD.good, computeMDs_obj$MD.bad),
+          group=c(rep("normal", length(computeMDs_obj$MD.good)), rep("abnormal",length(computeMDs_obj$MD.bad) ))
+      )
+      if (type == "bars") {
+          bar.df %>% ggplot() + geom_bar(aes(x=index, y=md), stat="identity") + 
+              ggtitle("Comparison of MDs between Normal and Abnormal Groups")
+      } else if (type == "hc_scatter") {
+          hchart(bar.df, "scatter", hcaes(x = index, y = md, group = group)) %>% hc_colors(c("red","blue"))
+      } else if (type == "hc_column") {
+          highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = bar.df$md)
+      }
 }
                         
 generateTDO <- function(good) {
