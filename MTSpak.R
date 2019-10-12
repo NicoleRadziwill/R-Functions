@@ -26,6 +26,28 @@ computeMDs <- function(good, bad) {
    return(list(MD.bad=MD.bad, MD.good=MD.good))
    }
 }
+                        
+generateTDO <- function(good) {
+      # This function can take as input either the good or bad data frame, since both have same ncol.
+      # Alternatively, you can just give it the number of IVs directly and it will still work.
+      if (!is.data.frame(good)) { 
+          ivs <- good
+      } else {
+          ivs <- ncol(good)
+      }
+      if (ivs %in% c(2:3)) {
+          tdo <- taguchiDesign("L4_2")@design[,1:ivs] %>% replace(.=="2",0)
+      } else if (ivs %in% c(4:7)) {
+          tdo <- taguchiDesign("L8_2")@design[,1:ivs] %>% replace(.=="2",0)
+      } else if (ivs %in% c(8:11)) { 
+          tdo <- taguchiDesign("L12_2")@design[,1:ivs] %>% replace(.=="2",0)
+      } else if (ivs %in% c(12:15)) {
+          tdo <- taguchiDesign("L16_2")@design[,1:ivs] %>% replace(.=="2",0)
+      } else if (ivs==1 || ivs > 15) {
+          stop(paste0("Number of independent variables ",ivs," is not supported"))
+      }
+   return(tdo=tdo)
+}
 
 # Functions to compute Taguchi Signal to Noise (SN)
 ltb <- function(x) { 
