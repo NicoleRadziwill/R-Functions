@@ -40,7 +40,7 @@ plotMDs <- function(computeMDs_obj, type="bars") {
       } else if (type == "hc_scatter") {
           hchart(bar.df, "scatter", hcaes(x = index, y = md, group = group)) %>% hc_colors(c("red","blue"))
       } else if (type == "hc_column") {
-          highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = bar.df$md)
+          highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = bar.df$md, name = "MD"))
       }
 }
                         
@@ -143,6 +143,7 @@ calcGains <- function(tdo, df) {
 # For example, if the first predictor/independent variable was used in 3 of 8 Taguchi experiments, the
 # Level 1 SN for X1 would be the average of these three SNs, while the Level 2 SN would be the average of
 # SNs for the 5 experiments where X1 was not used.
+   
     level1 <- colMeans(apply(tdo, 2, function(x) x*df$sn))
     level2s <- as.data.frame(matrix(as.numeric(!tdo), nrow=nrow(tdo)))
     level2 <- colMeans(apply(level2s, 2, function(x) x*df$sn))
@@ -152,3 +153,24 @@ calcGains <- function(tdo, df) {
 
     return(gains.df)
 }
+                             
+plotGains <- function(tdo, gains.df, type="bars") {
+# This function plots the output of calcGains. Negative gain indicates that the predictor does not
+# enhance the discriminatory power of the MTS. On the main effects plot, downward sloping lines 
+# indicate predictors that do not enhance the discriminatory power.
+
+     if (type == "bars") {
+       gains.df %>% ggplot() + geom_bar(aes(x=var, y=gain), stat="identity") +
+         ggtitle("Gain in SN Ratios for Each Variable")
+     } else if (type == "maineffects") {
+       gains.df %>% select(-gain) %>% 
+           pivot_longer(cols=starts_with("level"), names_to="level", values_to="value") %>% 
+           ggplot(aes(level, value, group=var)) + geom_line(lwd=2) +
+           facet_wrap(~var,ncol=ncol(good))
+     } else if (type == "hc_scatter") {
+         hchart(gains.df, "scatter", hcaes(x = var, y = gain, group = sign(gain))) %>% 
+              hc_colors(c("red","blue")) %>% hc_add_series(showInLegend = FALSE)
+     } else if (type == "hc_column") {
+         highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = gains.df$gain, name = "gain")
+     }
+}                                           
