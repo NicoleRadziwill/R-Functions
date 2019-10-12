@@ -6,8 +6,8 @@ library(tidyverse)       # for data handling, pipes, and plotting
 # Takes two data frames as inputs
 
 computeMDs <- function(good, bad) {
-   if (!is.data.frame(good) || !is.data.frame(diagnosis_MT)) { 
-      print("Inputs are Bad") 
+   if (!is.data.frame(good) || !is.data.frame(bad)) { 
+      stop("At least one input is not a data frame")
    } else {
       # Compute means and sd's for "good" group
       xbars <- colMeans(good)
