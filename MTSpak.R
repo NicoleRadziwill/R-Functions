@@ -26,6 +26,14 @@ computeMDs <- function(good, bad) {
    return(list(MD.bad=MD.bad, MD.good=MD.good))
    }
 }
+
+plotMDs <- function(computeMDs_obj, type="bars") {
+      bar.df <- data.frame(index=seq(1, length(computeMDs_obj$MD.good) + length(computeMDs_obj$MD.bad), 1), 
+          md=c(computeMDs_obj$MD.good, computeMDs_obj$MD.bad))
+
+      bar.df %>% ggplot() + geom_bar(aes(x=index, y=md), stat="identity") + 
+          ggtitle("Comparison of MDs between Normal and Abnormal Groups")
+}
                         
 generateTDO <- function(good) {
       # This function can take as input either the good or bad data frame, since both have same ncol.
