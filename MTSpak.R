@@ -78,3 +78,41 @@ stb <- function(x) {
 dyn.sn <- function(x, y) { 
    stb(x) - ltb(y) 
 }
+
+runTaguchi <- function(good, bad, tdo) {
+   # This function takes the data frames of good and bad observations + the Taguchi Orthogonal Array design (tdo)
+   # created by the generateTDO function and runs all signal-to-noise experiments on the MDs.
+   # It returns a data frame of experimental results.
+ 
+   results <- rep(c(0),times=nrow(tdo))
+   all.results <- NULL
+
+   for (x in 1:nrow(tdo)) {
+      exp.bad  <- as.data.frame(mapply(`*`, bad, tdo[x,]))
+      exp.good <- as.data.frame(mapply(`*`, good, tdo[x,]))
+   
+      exp.bad  <- exp.bad[, colSums(exp.bad != 0) > 0]        # drop all columns that were zeroed out
+      exp.good <- exp.good[, colSums(exp.good != 0) > 0]      # drop all columns that were zeroed out
+
+   if(is.vector(exp.good)) { # this indicates there is only ONE active column in the Taguchi array
+      xbars <- mean(exp.good)
+      sds <- sd(exp.good)
+      Rinv <- ginv(cor(as.matrix(exp.good)))  # pinv = 1
+      z0s <- (exp.bad-xbars)/sds
+      as.vector(t(z0s)*z0s) -> results
+      all.results <- rbind(all.results, results)
+   } else {                  # there are MULTIPLE active columns to process in the Taguchi array
+      xbars <- colMeans(exp.good)
+      sds <- apply(exp.good, 2, sd)
+      pinv <- 1/ncol(exp.good)
+      Rinv <- ginv(cor(exp.good))
+      z0s <- apply(exp.bad, 1, function(x) (x-xbars)/sds)  # scale bad group based on xbar/sd of good group
+      as.vector(pinv * diag( (t(z0s) %*% Rinv %*% z0s) )) -> results
+      all.results <- rbind(all.results, results)
+   }
+   rownames(all.results) <- NULL
+   df <- data.frame(all.results)
+
+   return(df=df)
+}
+}
