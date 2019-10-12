@@ -82,7 +82,8 @@ dyn.sn <- function(x, y) {
 runTaguchi <- function(good, bad, tdo) {
    # This function takes the data frames of good and bad observations + the Taguchi Orthogonal Array design (tdo)
    # created by the generateTDO function and runs all signal-to-noise experiments on the MDs.
-   # It returns a data frame of experimental results.
+   # It returns a data frame of experimental results, with one row per Taguchi experiment, and one column
+   # per predictor/independent variable.
  
    results <- rep(c(0),times=nrow(tdo))
    all.results <- NULL
@@ -97,7 +98,8 @@ runTaguchi <- function(good, bad, tdo) {
    if(is.vector(exp.good)) { # this indicates there is only ONE active column in the Taguchi array
       xbars <- mean(exp.good)
       sds <- sd(exp.good)
-      Rinv <- ginv(cor(as.matrix(exp.good)))  # pinv = 1
+      # pinv will be 1/1 because only one predictor
+      Rinv <- ginv(cor(as.matrix(exp.good))) 
       z0s <- (exp.bad-xbars)/sds
       as.vector(t(z0s)*z0s) -> results
       all.results <- rbind(all.results, results)
@@ -113,6 +115,23 @@ runTaguchi <- function(good, bad, tdo) {
    rownames(all.results) <- NULL
    df <- data.frame(all.results)
 
-   return(df=df)
+   return(list(df=df, all.results=all.results))
 }
+}
+                   
+addSN <- function(taguchiResults, method="ltb") {
+    # This function takes the results from runTaguchi, and appends a SN column to it 
+    # based on whether you want larger-the-better, smaller-the-better, or dynamic (stb-ltb) SN.
+    if (is.data.frame(taguchiResults)) { 
+       if (method == "stb") {
+          taguchiResults %>% mutate(sn=apply(taguchiResults,1,stb)) -> sn.df
+       } else if (method == "dyn") {
+          taguchiResults %>% mutate(sn=apply(taguchiResults,1,dyn)) -> sn.df
+       } else {
+          taguchiResults %>% mutate(sn=apply(taguchiResults,1,ltb)) -> sn.df
+       }
+    } else {
+          stop("The addSN function requires a data frame containing Taguchi experiment results")
+    }
+   return(sn.df=sn.df)
 }
