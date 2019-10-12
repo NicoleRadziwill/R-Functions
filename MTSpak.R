@@ -27,6 +27,15 @@ computeMDs <- function(good, bad) {
 }
 
 # Functions to compute Taguchi Signal to Noise (SN)
-ltb <- function(x) { -10*log10( (1/(length(x))) * sum(1/(x^2) )) }   # Larger-the-better
-stb <- function(x) { -10*log10( (1/(length(x))) * sum(  (x^2) )) }   # Smaller-the-better
-dyn.sn <- function(x, y) { stb(x) - ltb(y) }                         # Dynamic
+ltb <- function(x) { 
+    -10*log10( (1/(length(x))) * sum(1/(x^2) )) 
+}   # Larger-the-better
+
+stb <- function(x) { 
+    -10*log10( (1/(length(x))) * sum(  (x^2) )) 
+}   # Smaller-the-better
+
+dyn.sn <- function(x, y) { 
+   stb(x) - ltb(y) 
+}
+                        
