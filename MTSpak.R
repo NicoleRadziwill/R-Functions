@@ -173,4 +173,17 @@ plotGains <- function(tdo, gains.df, type="bars") {
      } else if (type == "hc_column") {
          highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = gains.df$gain, name = "gain")
      }
-}                                           
+}     
+                             
+                             
+recommend <- function(gains.df, type="print") {
+# This function tells you what variables to use for discriminating between "good" and "bad" groups.
+# If argument "pretty" is used, it generates a flextable containing the recommended variables.
+   
+   if (type == "print") {
+       gains.df %>% filter(gain > 0) %>% select(var) %>% as.list()
+
+     } else if (type == "pretty") {
+       gains.df %>% filter(gain > 0) %>% select(var) %>% regulartable() %>% autofit()
+     } 
+}     
