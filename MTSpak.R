@@ -24,6 +24,7 @@ computeMDs <- function(good, bad) {
       MD.good <- pinv * diag( (t(z0s.good) %*% Rinv %*% z0s.good) )
    
    return(list(MD.bad=MD.bad, MD.good=MD.good))
+   }
 }
 
 # Functions to compute Taguchi Signal to Noise (SN)
