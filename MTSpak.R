@@ -2,6 +2,7 @@ library(MASS)            # for ginv function
 library(qualityTools)    # for taguchiDesign function
 library(tidyverse)       # for data handling, pipes, and plotting
 library(highcharter)     # for an alternative to ggplot
+library(cowplot)         # for formatting plots in diffMTS
 
 computeMDs <- function(good, bad) {
 # This function computes Mahalanobis Distances (MDs) for "good" and "bad" groups.
@@ -187,3 +188,25 @@ recommend <- function(gains.df, type="print") {
        gains.df %>% filter(gain > 0) %>% select(var) %>% regulartable() %>% autofit()
      } 
 }     
+
+diffMTS <- function(mts1, mts2) {
+# This function takes two objects from compareMDs: your INITIAL set of MDs from good and bad groups with all potential
+# predictor variables included, and your FINAL set of MDs after feature selection.
+   
+   compare <- data.frame(index = seq(1, length(unlist(mts1)), 1),
+              md.old = c(mts1$MD.good, mts1$MD.bad),
+              md.new = c(mts2$MD.good, mts2$MD.bad))
+   
+   compare %>% mutate(diff = md.new - md.old) -> compare
+
+   g1 <- compare %>% ggplot() + geom_line(aes(x = index, y = md.old), color="blue") +
+      geom_line(aes(x = index, y = md.new), color="red", lwd=2)+ 
+      ggtitle("Discrimination Power After Feature Selection (Red)")
+   
+   g2 <- compare %>% ggplot() + geom_histogram(aes(x=diff)) + geom_vline(xintercept=2, col="red") +
+      ggtitle("Differences in Mahalanobis Distance (MD) after Feature Selection")
+   
+   cowplot::plot_grid(g1, g2)
+}
+                             
+                             
