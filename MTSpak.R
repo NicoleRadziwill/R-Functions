@@ -84,7 +84,7 @@ runTaguchi <- function(good, bad, tdo) {
    # created by the generateTDO function and runs all signal-to-noise experiments on the MDs.
    # It returns a data frame of experimental results, with one row per Taguchi experiment, and one column
    # per predictor/independent variable.
- 
+
    results <- rep(c(0),times=nrow(tdo))
    all.results <- NULL
 
@@ -94,7 +94,7 @@ runTaguchi <- function(good, bad, tdo) {
    
       exp.bad  <- exp.bad[, colSums(exp.bad != 0) > 0]        # drop all columns that were zeroed out
       exp.good <- exp.good[, colSums(exp.good != 0) > 0]      # drop all columns that were zeroed out
-
+     
    if(is.vector(exp.good)) { # this indicates there is only ONE active column in the Taguchi array
       xbars <- mean(exp.good)
       sds <- sd(exp.good)
@@ -103,6 +103,7 @@ runTaguchi <- function(good, bad, tdo) {
       z0s <- (exp.bad-xbars)/sds
       as.vector(t(z0s)*z0s) -> results
       all.results <- rbind(all.results, results)
+            print(paste(x, all.results))
    } else {                  # there are MULTIPLE active columns to process in the Taguchi array
       xbars <- colMeans(exp.good)
       sds <- apply(exp.good, 2, sd)
@@ -111,11 +112,14 @@ runTaguchi <- function(good, bad, tdo) {
       z0s <- apply(exp.bad, 1, function(x) (x-xbars)/sds)  # scale bad group based on xbar/sd of good group
       as.vector(pinv * diag( (t(z0s) %*% Rinv %*% z0s) )) -> results
       all.results <- rbind(all.results, results)
+            print(paste(x, all.results))
    }
    rownames(all.results) <- NULL
    df <- data.frame(all.results)
+                   
+   print(df)
 
-   return(list(df=df, all.results=all.results))
+   return(all.results=all.results)
 }
 }
                    
