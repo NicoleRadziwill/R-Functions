@@ -41,7 +41,7 @@ plotMDs <- function(computeMDs_obj, type="bars") {
       } else if (type == "hc_scatter") {
           hchart(bar.df, "scatter", hcaes(x = index, y = md, group = group)) %>% hc_colors(c("red","blue"))
       } else if (type == "hc_column") {
-          highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = bar.df$md, name = "MD"))
+          highchart() %>% hc_chart(type = "column") %>% hc_add_series(data = bar.df$md, name = "MD")
       }
 }
                         
