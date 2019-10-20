@@ -40,6 +40,6 @@ ggpareto <- function(x) {
     labs(title = paste0("Pareto Chart of ", title), y = "absolute frequency") +
     theme_bw()
   
-  return(graph = g)
+  return(g)
   #return(list(graph = g, Df = Df[, c(3, 1, 2, 4, 5)]))
 }
