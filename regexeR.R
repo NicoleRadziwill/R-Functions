@@ -25,8 +25,12 @@ re.url <- rex(
      maybe("/", non_space %>% zero_or_more()),
      end
 )
-
 re.email <- "\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>"
-re.currency <- "^([£€$]([0-9]([0-9,])*)(.\\d{2})?|([0-9]([0-9,]))(.\\d{2})?([pcmMK]|bn| [mb]illion))$"
+re.currency <- "^([£€$]([0-9]([0-9,])*)(.\\d{2})?|([0-9]([0-9,]))(.\\d{2})?([pcmMK]|bn| [mb]illion))$"  # US/UK/EURO only
 re.phone <- "[(]?([0-9]{3})[)]?[. -]([A-Z0-9]{3})[. -]([A-Z0-9]{4}).*','\\1-\\2-\\3"
+
+regex.url      <- re.url
+regex.email    <- re.email
+regex.currency <- re.currency
+regex.phone    <- re.phone
 
