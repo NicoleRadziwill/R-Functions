@@ -10,5 +10,4 @@ dinomight_bi <- function() {
       xdata <- data %>% select(-product_pricecat) 
       names(xdata) <- c("date","region","order_type","customer_id","email",
                   "product_type","billed","orders","name","continent","type","unit_cost")
-      xdata %>% mutate(total_cost=orders*unit_cost, total_profit=billed-total_cost) %>% ExPanD()
-}
+      xdata %>% mutate(total_cost=orders*unit_cost, total_profit=billed-total_cost) %>% ExPanDaR::ExPanD() }
