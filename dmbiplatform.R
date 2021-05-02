@@ -13,3 +13,4 @@ dinomight_bi <- function() {
       xdata %>% mutate(total_cost=orders*unit_cost, total_profit=billed-total_cost) -> xdata
 
 ExPanD(xdata)
+}
